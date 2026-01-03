@@ -16,7 +16,7 @@
     var DEBUG_SCHEDULE = false;
     // var DEBUG_ANCHOR = "互联网思维与创新(0506)";
 
-    // 二工大课表时间
+    // 课表时间（默认二工大的13个时间段）
     var PERIODS = [
         "08:00 – 08:45",
         "08:50 – 09:35",
