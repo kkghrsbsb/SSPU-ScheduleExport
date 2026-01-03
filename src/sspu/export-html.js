@@ -1,3 +1,8 @@
+// License: MIT
+// From Blob.js / FileSaver.js
+// See https://github.com/eligrey/Blob.js/blob/master/LICENSE.md
+// See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
+//
 // 在课表页面的浏览器控制台中运行此代码，以下载课程表的 HTML 预览。
 // 步骤：
 // 1. 打开教务系统的课表页面。
