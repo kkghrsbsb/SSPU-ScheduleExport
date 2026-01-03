@@ -1,5 +1,10 @@
-// Run this in the browser console on the timetable page to download
-// a pretty, standalone HTML preview of the schedule.
+// 在课表页面的浏览器控制台中运行此代码，以下载课程表的 HTML 预览。
+// 步骤：
+// 1. 打开教务系统的课表页面。
+// 2. 按下 F12 打开开发者工具，切换到控制台 (Console) 标签。
+// 3. 将下面的代码粘贴到控制台中并回车运行。
+// 4. 自动下载课程表的 HTML 预览文件。
+
 (function () {
     "use strict";
 
@@ -7,13 +12,33 @@
         return;
     }
 
-    var DEBUG_SCHEDULE = true;
-    var DEBUG_ANCHOR = "互联网思维与创新(0506)";
+    // debug
+    var DEBUG_SCHEDULE = false;
+    // var DEBUG_ANCHOR = "互联网思维与创新(0506)";
 
+    // 二工大课表时间
+    var PERIODS = [
+        "08:00 – 08:45",
+        "08:50 – 09:35",
+        "09:50 – 10:35",
+        "10:40 – 11:25",
+        "11:25 – 12:10",
+        "13:00 – 13:45",
+        "13:50 – 14:35",
+        "14:50 – 15:35",
+        "15:40 – 16:25",
+        "16:30 – 17:15",
+        "18:00 – 18:45",
+        "18:50 – 19:35",
+        "19:40 - 20:25",
+    ];
+
+    // 确保返回一个有效的字符串，如果输入为 null 或 undefined，则返回空字符串
     function safeText(value) {
         return value ? String(value) : "";
     }
 
+    // 清理课程名中的非法字符（如 \ / : * ? " < > |）
     function sanitizeFilename(name) {
         var cleaned = safeText(name).trim();
         if (!cleaned) {
@@ -22,6 +47,7 @@
         return cleaned.replace(/[\\/:*?"<>|]/g, "_");
     }
 
+    // 创建一个 HTML 文件并下载
     function downloadHtml(content, filename) {
         var blob = new Blob([content], { type: "text/html;charset=utf-8" });
         var link = document.createElement("a");
@@ -35,6 +61,7 @@
         }, 0);
     }
 
+    // 尝试查找和返回一个“毕业生课表”的表格元素，如果未找到则返回 null
     function findGradTable() {
         try {
             if (window.$ && $("#frmright")[0]) {
@@ -49,6 +76,7 @@
         return null;
     }
 
+    // 查找并返回一个包含课程数据的表格元素，若没有找到则返回 null
     function findEamsTable() {
         try {
             if (window.table0) {
@@ -77,6 +105,7 @@
         return null;
     }
 
+    // 根据 mode 返回当前学期的名称或标识，支持 eams 和 grad 模式
     function getSemester(mode) {
         try {
             if (mode === "eams") {
@@ -100,6 +129,7 @@
         return "";
     }
 
+    // 将传入的周次字符串解析为一个表示周次范围的字符串
     function parseWeekRanges(validWeeks) {
         var bits = safeText(validWeeks);
         if (!bits) {
@@ -131,20 +161,26 @@
         return parts.join(", ");
     }
 
+    // 规范化课程数据，按天和节次将课程安排映射到一个二维网格 grid，并推断每周的课时和周数
     function normalizeActivities(rawdata) {
         var activities = rawdata && rawdata.activities;
         if (!activities || !activities.length) {
             return null;
         }
-        var unitCount = rawdata.unitCount;
-        if (!unitCount) {
-            unitCount = rawdata.unitCounts
-                ? Math.round(rawdata.unitCounts / 7)
-                : Math.round(activities.length / 7);
-        }
+        var unitCount = PERIODS.length;
         var dayCount = rawdata.endAtSat ? 6 : 7;
-        if (unitCount) {
-            var inferredDays = Math.round(activities.length / unitCount);
+        var sourcePeriodCount = rawdata.unitCount;
+        if (!sourcePeriodCount) {
+            if (rawdata.unitCounts && dayCount) {
+                sourcePeriodCount = Math.round(rawdata.unitCounts / dayCount);
+            } else {
+                sourcePeriodCount = Math.round(activities.length / dayCount);
+            }
+        }
+        if (sourcePeriodCount) {
+            var inferredDays = Math.round(
+                activities.length / sourcePeriodCount,
+            );
             if (inferredDays >= 5 && inferredDays <= 7) {
                 dayCount = inferredDays;
             }
@@ -152,6 +188,7 @@
         if (DEBUG_SCHEDULE) {
             console.log("[pretty] unitCount:", unitCount);
             console.log("[pretty] unitCounts:", rawdata.unitCounts);
+            console.log("[pretty] sourcePeriodCount:", sourcePeriodCount);
             console.log("[pretty] activities.length:", activities.length);
             console.log("[pretty] inferredDays:", inferredDays);
             console.log("[pretty] dayCount:", dayCount);
@@ -173,8 +210,8 @@
             anchorIndices.forEach(function (index) {
                 var plan1Day = index % dayCount;
                 var plan1Period = Math.floor(index / dayCount);
-                var plan2Day = Math.floor(index / unitCount);
-                var plan2Period = index % unitCount;
+                var plan2Day = Math.floor(index / sourcePeriodCount);
+                var plan2Period = index % sourcePeriodCount;
                 console.log(
                     "[pretty] anchor index",
                     index,
@@ -194,8 +231,11 @@
             });
         });
         for (var index = 0; index < activities.length; index++) {
-            var day = Math.floor(index / unitCount);
-            var period = index % unitCount;
+            var day = Math.floor(index / sourcePeriodCount);
+            var period = index % sourcePeriodCount;
+            if (period >= unitCount) {
+                continue;
+            }
             if (grid[period] && grid[period][day]) {
                 grid[period][day] = activities[index] || [];
             }
@@ -203,6 +243,7 @@
         return { grid: grid, unitCount: unitCount, dayCount: dayCount };
     }
 
+    // 根据规范化后的课程数据和学期信息，构建并返回一个格式化的 HTML 课表字符串，包含课程名称、教师、教室等信息
     function buildPrettyHtml(rawdata, semester) {
         var schedule = normalizeActivities(rawdata);
         if (!schedule) {
@@ -251,9 +292,9 @@
                 var cells = row
                     .map(function (cell) {
                         if (!cell || !cell.length) {
-                            return '<td class="empty"><span>—</span></td>';
+                            return "<td></td>";
                         }
-                        var cards = cell
+                        var courses = cell
                             .map(function (course) {
                                 var courseName = safeText(course.courseName);
                                 var teacherName = safeText(course.teacherName);
@@ -265,31 +306,38 @@
                                     .filter(Boolean)
                                     .join(" · ");
                                 var weekLine = weekText
-                                    ? '<div class="meta small">' +
+                                    ? '<div class="week-range">' +
                                       weekText +
                                       "</div>"
                                     : "";
                                 return (
-                                    '<div class="card">' +
-                                    '<div class="title">' +
+                                    '<div class="course">' +
+                                    '<div class="course-name">' +
                                     (courseName || "未命名课程") +
                                     "</div>" +
                                     (meta
-                                        ? '<div class="meta">' + meta + "</div>"
+                                        ? '<div class="course-meta">' +
+                                          meta +
+                                          "</div>"
                                         : "") +
                                     weekLine +
                                     "</div>"
                                 );
                             })
                             .join("");
-                        return "<td>" + cards + "</td>";
+                        return "<td>" + courses + "</td>";
                     })
                     .join("");
+                var timeLabel = PERIODS[rowIndex]
+                    ? " " + PERIODS[rowIndex]
+                    : "";
                 return (
                     "<tr>" +
                     '<th class="period">第' +
                     (rowIndex + 1) +
-                    "节</th>" +
+                    "节" +
+                    timeLabel +
+                    "</th>" +
                     cells +
                     "</tr>"
                 );
@@ -305,174 +353,22 @@
             "<title>" +
             headerTitle +
             "</title>" +
-            "<style>" +
-            ":root{" +
-            "--bg:#f6f1ea;" +
-            "--bg2:#eae1d5;" +
-            "--card:#ffffff;" +
-            "--ink:#1f1d1a;" +
-            "--muted:#6c6256;" +
-            "--accent:#c45f3d;" +
-            "--accent2:#2f6f7e;" +
-            "--line:#e1d6c9;" +
-            "}" +
-            "*{box-sizing:border-box;}" +
-            "body{" +
-            "margin:0;" +
-            "font-family:'Noto Serif SC','Source Han Serif SC','Songti SC',serif;" +
-            "color:var(--ink);" +
-            "background:linear-gradient(135deg,var(--bg),var(--bg2));" +
-            "min-height:100vh;" +
-            "}" +
-            ".page{" +
-            "max-width:1200px;" +
-            "margin:0 auto;" +
-            "padding:36px 24px 56px;" +
-            "animation:fadeIn 0.7s ease both;" +
-            "}" +
-            ".hero{" +
-            "padding:28px 32px;" +
-            "background:linear-gradient(120deg,rgba(196,95,61,0.12),rgba(47,111,126,0.12));" +
-            "border:1px solid rgba(196,95,61,0.25);" +
-            "border-radius:22px;" +
-            "box-shadow:0 20px 40px rgba(0,0,0,0.08);" +
-            "backdrop-filter:blur(4px);" +
-            "}" +
-            ".hero h1{" +
-            "margin:0 0 8px;" +
-            "font-family:'Noto Sans SC','Source Han Sans SC','Microsoft YaHei',sans-serif;" +
-            "font-size:28px;" +
-            "letter-spacing:1px;" +
-            "}" +
-            ".hero .meta{" +
-            "display:flex;" +
-            "flex-wrap:wrap;" +
-            "gap:12px;" +
-            "font-size:14px;" +
-            "color:var(--muted);" +
-            "}" +
-            ".badge{" +
-            "padding:6px 12px;" +
-            "background:rgba(196,95,61,0.12);" +
-            "border-radius:999px;" +
-            "border:1px solid rgba(196,95,61,0.2);" +
-            "}" +
-            ".table-wrap{" +
-            "margin-top:28px;" +
-            "overflow:auto;" +
-            "border-radius:20px;" +
-            "border:1px solid var(--line);" +
-            "background:rgba(255,255,255,0.6);" +
-            "box-shadow:0 18px 32px rgba(0,0,0,0.06);" +
-            "}" +
-            "table{" +
-            "width:100%;" +
-            "border-collapse:separate;" +
-            "border-spacing:0;" +
-            "min-width:900px;" +
-            "}" +
-            "thead th{" +
-            "position:sticky;" +
-            "top:0;" +
-            "background:rgba(246,241,234,0.95);" +
-            "backdrop-filter:blur(6px);" +
-            "font-family:'Noto Sans SC','Source Han Sans SC','Microsoft YaHei',sans-serif;" +
-            "font-size:14px;" +
-            "letter-spacing:1px;" +
-            "text-transform:uppercase;" +
-            "padding:14px 12px;" +
-            "border-bottom:1px solid var(--line);" +
-            "}" +
-            "tbody td, tbody th{" +
-            "border-bottom:1px solid var(--line);" +
-            "border-right:1px solid var(--line);" +
-            "vertical-align:top;" +
-            "padding:12px;" +
-            "}" +
-            "tbody tr:last-child td, tbody tr:last-child th{" +
-            "border-bottom:none;" +
-            "}" +
-            "tbody td:last-child, thead th:last-child{" +
-            "border-right:none;" +
-            "}" +
-            ".period{" +
-            "min-width:70px;" +
-            "text-align:center;" +
-            "font-size:13px;" +
-            "color:var(--muted);" +
-            "background:rgba(250,247,243,0.8);" +
-            "}" +
-            ".card{" +
-            "background:var(--card);" +
-            "border-radius:12px;" +
-            "padding:10px 12px;" +
-            "box-shadow:0 6px 14px rgba(31,29,26,0.08);" +
-            "border:1px solid rgba(196,95,61,0.18);" +
-            "margin-bottom:10px;" +
-            "animation:riseIn 0.5s ease both;" +
-            "}" +
-            ".card:last-child{margin-bottom:0;}" +
-            ".card .title{" +
-            "font-family:'Noto Sans SC','Source Han Sans SC','Microsoft YaHei',sans-serif;" +
-            "font-size:14px;" +
-            "margin-bottom:6px;" +
-            "}" +
-            ".card .meta{" +
-            "font-size:12px;" +
-            "color:var(--muted);" +
-            "}" +
-            ".card .meta.small{" +
-            "font-size:11px;" +
-            "color:var(--accent2);" +
-            "margin-top:4px;" +
-            "}" +
-            ".empty{" +
-            "text-align:center;" +
-            "color:#b6a99b;" +
-            "}" +
-            ".empty span{" +
-            "display:inline-block;" +
-            "padding:18px 0;" +
-            "}" +
-            ".footer{" +
-            "margin-top:22px;" +
-            "font-size:12px;" +
-            "color:var(--muted);" +
-            "}" +
-            "@keyframes fadeIn{" +
-            "from{opacity:0;transform:translateY(10px);}" +
-            "to{opacity:1;transform:translateY(0);}" +
-            "}" +
-            "@keyframes riseIn{" +
-            "from{opacity:0;transform:translateY(8px);}" +
-            "to{opacity:1;transform:translateY(0);}" +
-            "}" +
-            "@media (max-width: 900px){" +
-            ".page{padding:24px 16px 40px;}" +
-            ".hero{padding:20px;}" +
-            "table{min-width:720px;}" +
-            "}" +
-            "</style>" +
             "</head>" +
             "<body>" +
-            '<div class="page">' +
-            '<section class="hero">' +
             "<h1>" +
             headerTitle +
             "</h1>" +
-            '<div class="meta">' +
-            '<span class="badge">课程数：' +
+            "<div>" +
+            '<span class="count-courses">课程数：' +
             uniqueCourses.size +
             "</span>" +
-            '<span class="badge">节次：' +
+            '<span class="count-periods">节次：' +
             schedule.unitCount +
             "</span>" +
-            '<span class="badge">导出时间：' +
+            '<span class="exported-at">导出时间：' +
             exportedAt +
             "</span>" +
             "</div>" +
-            "</section>" +
-            '<div class="table-wrap">' +
             "<table>" +
             "<thead><tr><th></th>" +
             tableHead +
@@ -481,9 +377,6 @@
             bodyRows +
             "</tbody>" +
             "</table>" +
-            "</div>" +
-            '<div class="footer">来自树维教务导出的课程表，可直接离线打开。</div>' +
-            "</div>" +
             "</body>" +
             "</html>"
         );
@@ -508,6 +401,6 @@
         return;
     }
 
-    var filename = sanitizeFilename(semester || "课程表") + "-pretty.html";
+    var filename = sanitizeFilename(semester || "课程表") + ".html";
     downloadHtml(html, filename);
 })();
