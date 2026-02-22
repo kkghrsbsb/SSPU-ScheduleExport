@@ -14,7 +14,7 @@
 
 6. 将下载的 schedule.html 放入 src/original/
 7. 预览（本地样式渲染）：npm run dev，然后打开 http://localhost:3000/schedule
-8. 生成带样式的静态 HTML：npm run build:html，输出到 dist/schedule.html
+8. 生成带样式的静态 HTML：npm run build:html，输出到 dist/schedule.html，将这个静态保存或放服务器托管吧~
 
 <img title="" src="./README.assets/image-20260222185055104.png" alt="" data-align="left" width="500">
 
