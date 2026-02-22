@@ -6,15 +6,15 @@
 
 1. 在浏览器中打开 oa办公 - 本专科教务 的“我的课表”页面
 2. 按 F12 打开开发者工具，切换到 Console
-3. 复制 scripts/export-html.js 中的全部代码
+3. 复制 `scripts/export-html.js` 中的全部代码
 4. 粘贴到 Console，回车执行
-5. 浏览器会自动下载一个无样式的 schedule.html 文件（不涉及个人隐私）
+5. 浏览器会自动下载一个无样式的 `schedule.html` 文件（不涉及个人隐私）
 
 <img title="" src="./README.assets/Plain_HTML_Preview.png" alt="" data-align="left" width="500">
 
-6. 将下载的 schedule.html 放入 src/original/ （需要新建此文件夹）
-7. 预览（本地样式渲染）：npm run dev，然后打开 http://localhost:3000/schedule
-8. 生成带样式的静态 HTML：npm run build:html，输出到 dist/schedule.html，将这个静态保存或放服务器托管吧~
+6. 将下载的 `schedule.html` 放入 `src/original/` （需要新建此文件夹）
+7. 预览（本地样式渲染）：`npm run dev`，然后打开 http://localhost:3000/schedule
+8. 生成带样式的静态 HTML：`npm run build:html`，输出到 `dist/schedule.html`，将这个静态保存或放服务器托管吧~
 
 <img title="" src="./README.assets/image-20260222185055104.png" alt="" data-align="left" width="500">
 
@@ -29,7 +29,8 @@
 ### 1. 已有功能
 
 - 仅需导出原始 `schedule.html`，本地预览与构建会自动解析并渲染为移动端/桌面端双视图
-- 北京时间高亮今日（桌面端列 + 移动端当天卡片）
+- 导出时自动识别学年，学期，课程数，节次（eg. 2025-2026学年春季学期 课程数：11 节次：13）
+- 动态显示北京时间，高亮今日（桌面端列 + 移动端当天卡片）
 - 移动端加载后自动平滑滚动到当天
 - 仅移动端按周过滤（桌面端表格保留全学期）
 - 桌面端左上角显示“第X周”，移动端表头显示“第X周 周X”

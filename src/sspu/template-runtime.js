@@ -157,6 +157,22 @@
     return "第" + week + "周";
   }
 
+  function pad2(value) {
+    return value < 10 ? "0" + value : String(value);
+  }
+
+  function formatDateTime(date) {
+    if (!date) {
+      return "-";
+    }
+    var y = date.getFullYear();
+    var m = pad2(date.getMonth() + 1);
+    var d = pad2(date.getDate());
+    var h = pad2(date.getHours());
+    var min = pad2(date.getMinutes());
+    return y + "-" + m + "-" + d + " " + h + ":" + min;
+  }
+
   function renderList(root, data) {
     var dIndex;
     var week = getWeekNumber(WEEK1_START);
@@ -319,9 +335,13 @@
 
     var week = getWeekNumber(WEEK1_START);
     var metaWeek = document.getElementById("metaWeek");
+    var metaExportedAt = document.getElementById("metaExportedAt");
     var weekLabel = getWeekLabel(week);
     if (metaWeek) {
       metaWeek.textContent = "教学周：" + weekLabel;
+    }
+    if (metaExportedAt) {
+      metaExportedAt.textContent = formatDateTime(getBeijingDate());
     }
     var listRoot = document.getElementById("listView");
     var headRow = document.getElementById("tableHead");
