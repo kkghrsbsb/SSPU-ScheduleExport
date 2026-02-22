@@ -6,7 +6,7 @@
   // 用户自定义：期末周（最后一周）周次
   var TERM_FINAL_WEEK = 17;
   // 调试用：假设今天日期（北京时间），格式 YYYY-MM-DD；留空表示使用当前日期
-  var DEBUG_TODAY = "";
+  var DEBUG_TODAY = "2026-03-03";
 
   function escapeHtml(value) {
     return String(value)

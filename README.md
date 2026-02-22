@@ -6,18 +6,27 @@
 
 1. 在浏览器中打开 oa办公 - 本专科教务 的“我的课表”页面
 2. 按 F12 打开开发者工具，切换到 Console
-3. 复制 src/export-html.js 中的全部代码
+3. 复制 scripts/export-html.js 中的全部代码
 4. 粘贴到 Console，回车执行
 5. 浏览器会自动下载一个无样式的 schedule.html 文件（不涉及个人隐私）
+
+<img title="" src="./README.assets/Plain_HTML_Preview.png" alt="" data-align="left" width="500">
+
 6. 将下载的 schedule.html 放入 src/original/
 7. 预览（本地样式渲染）：npm run dev，然后打开 http://localhost:3000/schedule
 8. 生成带样式的静态 HTML：npm run build:html，输出到 dist/schedule.html
 
-<img title="" src="img/Plain_HTML_Preview.png" alt="" data-align="left" width="500">
+<img title="" src="./README.assets/image-20260222185055104.png" alt="" data-align="left" width="500">
+
+> 需要自设的变量  
+> 位于 `src/sspu/template-runtime.js` 顶部:  
+>
+> 1. `WEEK1_START`：第 1 周周一日期（北京时间），格式 `YYYY-MM-DD`  
+> 2. `TERM_FINAL_WEEK`：期末周（最后一周）周次，例如 `17`
 
 ## 二. 开发
 
-### 1. 特色功能
+### 1. 已有功能
 
 - 仅需导出原始 `schedule.html`，本地预览与构建会自动解析并渲染为移动端/桌面端双视图
 - 北京时间高亮今日（桌面端列 + 移动端当天卡片）
@@ -26,14 +35,7 @@
 - 桌面端左上角显示“第X周”，移动端表头显示“第X周 周X”
 - 未开学显示“未开学”，期末周结束后显示“已结课”
 
-### 2. 需要自设的变量
-
-位于 `src/sspu/template-runtime.js` 顶部：
-
-- `WEEK1_START`：第 1 周周一日期（北京时间），格式 `YYYY-MM-DD`
-- `TERM_FINAL_WEEK`：期末周（最后一周）周次，例如 `17`
-
-### 3. 预制样式
+### 2. 自定义主题
 
 当前内置主题是 `src/themes/midnight-ink.css`，整体特点：
 
@@ -41,8 +43,7 @@
 - 表格与卡片边框清晰，信息层级靠字号与颜色区分
 - 移动端为“按天列表”，桌面端为“表格视图”（`900px` 断点切换）
 
-### 4. 自定义主题
-
+如何自定义主题？
 1. 在 `src/themes/` 新建一个 `.css` 文件（建议全小写+连字符命名）。
 2. 复制 `src/themes/midnight-ink.css` 作为起点，按需调整变量和样式。
 3. 修改以下引用，让预览与构建使用你的主题：
