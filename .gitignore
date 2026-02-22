@@ -1,2 +1,3 @@
-/src/original
-/inspiration
+inspiration
+node_modules/
+dist/

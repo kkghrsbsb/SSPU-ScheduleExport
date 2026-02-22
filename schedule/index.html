@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>课程表</title>
+        <link rel="stylesheet" href="/src/themes/midnight-ink.css" />
+    </head>
+    <body>
+        <header>
+            <h1 id="titleText">课程表</h1>
+            <div class="meta">
+                <span id="metaCourse">课程数：-</span>
+                <span id="metaPeriod">节次：-</span>
+                <span id="metaWeek">教学周：-</span>
+                <span id="metaExportedAt">导出时间：-</span>
+            </div>
+        </header>
+
+        <main>
+            <section
+                class="list-view"
+                id="listView"
+                aria-label="课程表（移动端列表）"
+            ></section>
+
+            <section class="table-view" aria-label="课程表（桌面端表格）">
+                <div class="table-wrap">
+                    <table id="tableView">
+                        <thead>
+                            <tr id="tableHead"></tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <script src="/src/sspu/template-runtime.js"></script>
+        <script src="/src/sspu/parse-original.js"></script>
+        <script src="/schedule/preview.js"></script>
+    </body>
+</html>

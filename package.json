@@ -1,0 +1,25 @@
+{
+  "name": "sspu-scheduleexport",
+  "version": "1.0.0",
+  "description": "从学校教务系统页面导出静态 HTML 课表",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "build:html": "node scripts/build-export.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkghrsbsb/SSPU-ScheduleExport.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kkghrsbsb/SSPU-ScheduleExport/issues"
+  },
+  "homepage": "https://github.com/kkghrsbsb/SSPU-ScheduleExport#readme",
+  "devDependencies": {
+    "serve": "^14.2.5"
+  }
+}
