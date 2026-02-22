@@ -12,13 +12,13 @@
 
 <img title="" src="./README.assets/Plain_HTML_Preview.png" alt="" data-align="left" width="500">
 
-6. 将下载的 schedule.html 放入 src/original/
+6. 将下载的 schedule.html 放入 src/original/ （需要新建此文件夹）
 7. 预览（本地样式渲染）：npm run dev，然后打开 http://localhost:3000/schedule
 8. 生成带样式的静态 HTML：npm run build:html，输出到 dist/schedule.html，将这个静态保存或放服务器托管吧~
 
 <img title="" src="./README.assets/image-20260222185055104.png" alt="" data-align="left" width="500">
 
-> 需要自设的变量  
+> 有需要自设的变量  
 > 位于 `src/sspu/template-runtime.js` 顶部:  
 >
 > 1. `WEEK1_START`：第 1 周周一日期（北京时间），格式 `YYYY-MM-DD`  
@@ -52,6 +52,38 @@
 4. 运行：
    - 预览：`npm run dev`，打开 `http://localhost:3000/schedule`
    - 输出：`npm run build:html`（生成到 `dist/schedule.html`）
+
+#### Prompt 模板（自定义主题）{修改处}
+```
+请在项目中按以下要求自定义主题。
+
+目标：
+- 基于 `src/themes/midnight-ink.css` 创建新主题：`src/themes/{theme-name}.css`
+- 主题风格：{风格关键词，比如“暖色纸感/赛博蓝/复古报纸/日系清爽”等}
+- 主要使用场景：课程表（桌面表格 + 移动端卡片）
+
+具体设计要求：
+- 主色：{主色}
+- 辅色：{辅色}
+- 背景：{背景描述，比如“有细微纹理/渐变/浅灰纸感”}
+- 强调：{强调色或强调方式}
+- 字体风格：{例如“清晰可读/轻微复古/无衬线”}
+- 视觉层级：{比如“课程名最突出，地点次之，老师最弱”}
+
+实现范围（必须覆盖）：
+- CSS 变量（如有）
+- 桌面表格：表头、当前日高亮、边框、空白单元格、课程单元格
+- 移动端卡片：日期头、课程卡、时间/地点/老师字段、当前日高亮
+- 断点与布局保持与原主题一致（`900px`）
+
+工程修改：
+1. 新建 `src/themes/{theme-name}.css`（复制 `src/themes/midnight-ink.css` 起步并改造）
+2. 修改 `schedule/index.html` 的 `<link rel="stylesheet" ...>` 指向新主题
+3. 修改 `scripts/build-export.js` 的 `themePath` 指向新主题
+
+请直接给出修改后的文件内容或补丁，并说明改动的文件列表。
+
+```
 
 ## 三. 碎碎念
 

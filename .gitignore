@@ -1,3 +1,7 @@
 inspiration
 node_modules/
 dist/
+src/original/schedule.html
+
+.idea/
+.vscode/
